@@ -51,9 +51,9 @@ export function _useUser(initialValue: UserState = { loading: true, data: null }
             const data = { photoURL, uid, displayName, email };
 
             // print data in dev mode
-            if (process.env.NODE_ENV === 'development') {
+            /*if (process.env.NODE_ENV === 'development') {
                 console.log(data);
-            }
+            }*/
 
             // set store
             setUser({ loading: false, data });

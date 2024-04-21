@@ -3,8 +3,11 @@
 import { Loading, Login } from "~/lib/helpers";
 import { useUser } from "~/lib/use-user";
 import Profile from "./profile";
+import { useFirebase } from "~/lib/firebase";
 
 export default function Home() {
+
+    useFirebase(true);
 
     const [user] = useUser({ data: null, loading: true });
 
