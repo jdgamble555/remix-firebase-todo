@@ -1,6 +1,7 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Provider } from "~/lib/use-shared";
+import { json, type MetaFunction } from "@remix-run/node";
 import Home from "~/components/home";
+import { useEnv } from "~/lib/use-env";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,10 +10,16 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader() {
+  return json({
+    PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
+  });
+}
+
 export default function Index() {
+  const data = useLoaderData<typeof loader>();
+  useEnv(data);
   return (
-    <Provider>
-      <Home />
-    </Provider>
+    <Home />
   );
 }

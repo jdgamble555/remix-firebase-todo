@@ -2,11 +2,15 @@ import { getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { useShared } from './use-shared';
-import getFirebaseEnv from './get-env';
+import { useEnv } from './use-env';
 
 const _useFirebase = () => {
 
-    const firebase_config = getFirebaseEnv();
+    const [env] = useEnv();
+
+    console.log(env);
+
+    const firebase_config = JSON.parse(env.PUBLIC_FIREBASE_CONFIG);
 
     if (!getApps().length) {
         initializeApp(firebase_config);
