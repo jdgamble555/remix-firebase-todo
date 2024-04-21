@@ -12,16 +12,17 @@ declare global {
 
 export const useFirebase = () => {
 
-    const firebase_config = typeof process === 'undefined'
-        ? window.ENV.PUBLIC_FIREBASE_CONFIG
-        : JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!);
+    if (!getApps().length) {
+        
+        const firebase_config = typeof process === 'undefined'
+            ? window.ENV.PUBLIC_FIREBASE_CONFIG
+            : JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!);
 
-    const app = getApps().length
-        ? getApp()
-        : initializeApp(firebase_config);
+        initializeApp(firebase_config);
+    }
 
     return {
-        auth: getAuth(app),
-        db: getFirestore(app)
+        auth: getAuth(),
+        db: getFirestore()
     };
 };
