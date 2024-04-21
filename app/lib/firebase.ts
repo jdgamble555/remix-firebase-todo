@@ -8,9 +8,7 @@ const _useFirebase = () => {
 
     const [env] = useEnv();
 
-    console.log(env);
-
-    const firebase_config = JSON.parse(env.PUBLIC_FIREBASE_CONFIG);
+    const firebase_config = JSON.parse(env!.PUBLIC_FIREBASE_CONFIG);
 
     if (!getApps().length) {
         initializeApp(firebase_config);
