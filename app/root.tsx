@@ -24,7 +24,7 @@ export async function loader() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useLoaderData<typeof loader>();
+  //const data = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
@@ -40,13 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/about">About</Link>
         </nav>
         <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(
-              data.ENV
-            )}`,
-          }}
-        />
+
         <Scripts />
       </body>
     </html>
