@@ -34,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${data.ENV}`,
+            __html: `window.ENV = \`${JSON.stringify(data.ENV)}\``,
           }}
         />
       </head>
