@@ -4,19 +4,27 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  Link
+  Link,
+  json,
+  useLoaderData
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
-
-import { Provider } from "./lib/use-shared";
+import { useEnv } from "./lib/use-env";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export async function loader() {
+  return json({
+    PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
+  });
+}
 
+export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>();
+  useEnv(data);
   return (
     <html lang="en">
       <head>
@@ -26,9 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Provider>
-          {children}
-        </Provider>
+        {children}
         <nav className="flex gap-3 justify-center mt-5">
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>

@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { doc, getDoc, getFirestore } from "firebase/firestore/lite";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 type AboutDoc = {
     name: string;
