@@ -38,7 +38,9 @@ export const snapToData = (
         return [];
     }
     return q.docs.map((doc) => {
-        const data = doc.data();
+        const data = doc.data({
+            serverTimestamps: 'estimate'
+        });
         const created = data.created as Timestamp;
         return {
             ...data,
