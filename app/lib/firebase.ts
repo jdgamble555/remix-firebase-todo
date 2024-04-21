@@ -2,8 +2,6 @@ import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-const isBrowser = typeof window !== 'undefined';
-
 declare global {
     interface Window {
         ENV: {
@@ -14,7 +12,7 @@ declare global {
 
 export const useFirebase = () => {
 
-    if (!isBrowser) {
+    if (process.env.PUBLIC_FIREBASE_CONFIG) {
         return {
             db: null,
             auth: null
