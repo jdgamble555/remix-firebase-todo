@@ -18,7 +18,7 @@ export const links: LinksFunction = () => [
 export async function loader() {
   return json({
     ENV: {
-      PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
+      PUBLIC_FIREBASE_CONFIG: JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!)
     },
   });
 }

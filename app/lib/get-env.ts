@@ -10,8 +10,10 @@ function isBrowser() {
     return typeof window !== 'undefined';
 }
 
-function getEnv() {
-    return isBrowser() ? window!.ENV : process.env;
+function getFirebaseEnv() {
+    return isBrowser()
+        ? window.ENV.PUBLIC_FIREBASE_CONFIG
+        : JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!);
 }
 
-export default getEnv;
+export default getFirebaseEnv;
