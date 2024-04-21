@@ -18,7 +18,7 @@ export const links: LinksFunction = () => [
 export async function loader() {
   return json({
     ENV: {
-      PUBLIC_FIREBASE_CONFIG: JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!)
+      PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
     },
   });
 }
@@ -34,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            __html: `window.ENV = ${data.ENV}`,
           }}
         />
       </head>
