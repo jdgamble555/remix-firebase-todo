@@ -20,5 +20,5 @@ export default function AboutPage() {
                 <p>{about.description}</p>
             </div>
         </div>
-    )
+    );
 }
