@@ -1,14 +1,22 @@
+import { getApp, getApps, initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { app } from "./firebase";
-
-const db = getFirestore(app);
 
 type AboutDoc = {
     name: string;
     description: string;
 };
 
-export const getAbout = async () =>{
+export const getAbout = async () => {
+
+    const firebase_config = JSON.parse(
+        process.env.PUBLIC_FIREBASE_CONFIG!
+    );
+
+    const app = getApps().length
+        ? getApp()
+        : initializeApp(firebase_config);
+
+    const db = getFirestore(app);
 
     const aboutSnap = await getDoc(
         doc(db, '/about/ZlNJrKd6LcATycPRmBPA')

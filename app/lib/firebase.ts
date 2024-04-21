@@ -17,9 +17,11 @@ const firebase_config = isBrowser
     ? window.ENV.PUBLIC_FIREBASE_CONFIG!
     : JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!);
 
-export const app = getApps().length
-    ? getApp()
-    : initializeApp(firebase_config);
+export const app = isBrowser
+    ? getApps().length
+        ? getApp()
+        : initializeApp(firebase_config)
+    : null;
 
 export const auth = isBrowser ? getAuth() : null;
 export const db = isBrowser ? getFirestore() : null;
