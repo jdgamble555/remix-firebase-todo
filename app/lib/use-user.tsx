@@ -5,9 +5,10 @@ import {
     onIdTokenChanged,
     signOut,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    Auth
 } from "firebase/auth";
-import { auth } from "./firebase";
+import { useFirebase } from "./firebase";
 
 export type userData = {
     photoURL: string | null;
@@ -22,6 +23,8 @@ type UserState = {
 };
 
 export function _useUser(initialValue: UserState = { loading: true, data: null }) {
+
+    const { auth } = useFirebase();
 
     const _store = useState<UserState>(initialValue);
 
@@ -56,21 +59,21 @@ export function _useUser(initialValue: UserState = { loading: true, data: null }
             setUser({ loading: false, data });
         });
 
-    }, [setUser]);
+    }, [setUser, auth]);
 
     return _store;
 }
 
 export const useUser = (initialValue?: UserState) => useShared('user', _useUser, initialValue);
 
-export const loginWithGoogle = () => {
+export const loginWithGoogle = (auth: Auth | null) => {
     if (!auth) {
         return;
     }
     signInWithPopup(auth, new GoogleAuthProvider());
-} 
+}
 
-export const logout = () => {
+export const logout = (auth: Auth | null) => {
     if (!auth) {
         return;
     }

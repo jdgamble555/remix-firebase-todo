@@ -12,16 +12,22 @@ declare global {
     }
 }
 
-// initialize and login
-const firebase_config = isBrowser
-    ? window.ENV.PUBLIC_FIREBASE_CONFIG!
-    : JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG!);
+export const useFirebase = () => {
 
-export const app = isBrowser
-    ? getApps().length
+    if (!isBrowser) {
+        return {
+            db: null,
+            auth: null
+        }
+    }
+
+    const firebase_config = window.ENV.PUBLIC_FIREBASE_CONFIG;
+    const app = getApps().length
         ? getApp()
-        : initializeApp(firebase_config)
-    : null;
+        : initializeApp(firebase_config);
 
-export const auth = isBrowser ? getAuth() : null;
-export const db = isBrowser ? getFirestore() : null;
+    return {
+        auth: getAuth(app),
+        db: getFirestore(app)
+    };
+};

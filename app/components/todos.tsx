@@ -1,6 +1,7 @@
 import { addTodo, useTodos } from "~/lib/use-todos";
 import { useUser, userData } from "~/lib/use-user";
 import { Todo } from "./todo-item";
+import { useFirebase } from "~/lib/firebase";
 
 export default function Todos() {
 
@@ -29,8 +30,9 @@ export default function Todos() {
 }
 
 export const TodoForm = (user: userData) => {
+    const { db } = useFirebase();
     return (
-        <form className="flex gap-3 items-center justify-center mt-5" onSubmit={(e) => addTodo(e, user.uid)}>
+        <form className="flex gap-3 items-center justify-center mt-5" onSubmit={(e) => addTodo(e, user.uid, db)}>
             <input className="border p-2" name="task" />
             <button className="border p-2 rounded-md text-white bg-sky-700" type="submit">
                 Add Task

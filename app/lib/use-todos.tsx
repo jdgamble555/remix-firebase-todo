@@ -1,7 +1,8 @@
 import {
     type DocumentData,
     onSnapshot,
-    type QuerySnapshot
+    type QuerySnapshot,
+    Firestore
 } from 'firebase/firestore';
 import {
     addDoc,
@@ -15,7 +16,7 @@ import {
     where
 } from 'firebase/firestore';
 
-import { db } from './firebase';
+import { useFirebase } from './firebase';
 import { FormEvent, useEffect, useState } from 'react';
 import { useUser } from './use-user';
 
@@ -49,6 +50,8 @@ export const snapToData = (
 export function useTodos(
     _user: ReturnType<typeof useUser>
 ) {
+
+    const { db } = useFirebase();
 
     const _store = useState<{
         todos: TodoItem[],
@@ -103,14 +106,15 @@ export function useTodos(
 
             });
 
-    }, [setTodos, user.data]);
+    }, [setTodos, user.data, db]);
 
     return _store[0];
 }
 
 export const addTodo = (
     e: FormEvent<HTMLFormElement>,
-    uid: string
+    uid: string,
+    db: Firestore | null
 ) => {
 
     e.preventDefault();
@@ -118,7 +122,6 @@ export const addTodo = (
     if (!db) {
         return;
     }
-
     // get and reset form
     const target = e.target as HTMLFormElement;
     const form = new FormData(target);
@@ -139,14 +142,21 @@ export const addTodo = (
     });
 }
 
-export const updateTodo = (id: string, complete: boolean) => {
+export const updateTodo = (
+    id: string,
+    complete: boolean,
+    db: Firestore | null
+) => {
     if (!db) {
         return;
     }
     updateDoc(doc(db, 'todos', id), { complete });
 }
 
-export const deleteTodo = (id: string) => {
+export const deleteTodo = (
+    id: string,
+    db: Firestore | null
+) => {
     if (!db) {
         return;
     }
