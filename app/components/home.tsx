@@ -1,5 +1,3 @@
-'use client';
-
 import { Loading, Login } from "~/lib/helpers";
 import { useUser } from "~/lib/use-user";
 import Profile from "./profile";

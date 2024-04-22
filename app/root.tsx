@@ -10,7 +10,6 @@ import {
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
-import { useEnv } from "./lib/use-env";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -18,13 +17,14 @@ export const links: LinksFunction = () => [
 
 export async function loader() {
   return json({
-    PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
+    ENV: {
+      PUBLIC_FIREBASE_CONFIG: process.env.PUBLIC_FIREBASE_CONFIG
+    },
   });
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
-  useEnv(data);
   return (
     <html lang="en">
       <head>
@@ -40,6 +40,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/about">About</Link>
         </nav>
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(
+              data.ENV
+            )}`,
+          }}
+        />
         <Scripts />
       </body>
     </html>

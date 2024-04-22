@@ -6,17 +6,15 @@ type AboutDoc = {
     description: string;
 };
 
+const firebase_config = JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG);
+
+const app = getApps().length
+    ? getApp()
+    : initializeApp(firebase_config);
+
+const db = getFirestore(app);
+
 export const getAbout = async () => {
-
-    const firebase_config = JSON.parse(
-        process.env.PUBLIC_FIREBASE_CONFIG!
-    );
-
-    const app = getApps().length
-        ? getApp()
-        : initializeApp(firebase_config);
-
-    const db = getFirestore(app);
 
     const aboutSnap = await getDoc(
         doc(db, '/about/ZlNJrKd6LcATycPRmBPA')

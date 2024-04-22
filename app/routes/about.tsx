@@ -1,11 +1,11 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getAbout } from "~/lib/about";
+import { getAbout } from "~/lib/about.server";
 
 export const loader = async () => {
     
-    const about = await getAbout(); 
-
+    const about = await getAbout();
+    
     return json(about);
 };
 
