@@ -1,4 +1,4 @@
-import { getApp, getApps, initializeApp, setLogLevel } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 type AboutDoc = {
@@ -18,7 +18,7 @@ const db = getFirestore(app);
 
 export const getAbout = async () => {
 
-    setLogLevel('debug');
+    //setLogLevel('debug');
 
     const aboutSnap = await getDoc(
         doc(db, '/about/ZlNJrKd6LcATycPRmBPA')
