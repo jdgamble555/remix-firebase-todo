@@ -1,12 +1,14 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc, getFirestore } from "firebase/firestore/lite";
 
 type AboutDoc = {
     name: string;
     description: string;
 };
 
-const firebase_config = JSON.parse(process.env.PUBLIC_FIREBASE_CONFIG);
+const firebase_config = JSON.parse(
+    process.env.PUBLIC_FIREBASE_CONFIG
+);
 
 const app = getApps().length
     ? getApp()
