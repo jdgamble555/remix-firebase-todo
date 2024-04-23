@@ -7,7 +7,8 @@ export const Loading = () => {
 
 export const Login = () => {
     const { auth } = useFirebase();
-    return <button type="button" className="border p-2 rounded-md text-white bg-red-600" onClick={() => loginWithGoogle(auth)}>
+    return <button type="button" className="border p-2 rounded-md text-white bg-red-600"
+        onClick={() => loginWithGoogle(auth)}>
         Signin with Google
     </button>
 };

@@ -101,9 +101,9 @@ export function useTodos(
                  */
 
                 // print data in dev mode
-                /*if (process.env.NODE_ENV === 'development') {
+                if (process.env.NODE_ENV === 'development') {
                     console.log(data);
-                }*/
+                }
 
                 // add to store
                 setTodos({ loading: false, todos: data });

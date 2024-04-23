@@ -22,7 +22,12 @@ type UserState = {
     data: userData | null;
 };
 
-export function _useUser(initialValue: UserState = { loading: true, data: null }) {
+export function _useUser(
+    initialValue: UserState = {
+        loading: true,
+        data: null
+    }
+) {
 
     const { auth } = useFirebase();
 
@@ -51,9 +56,9 @@ export function _useUser(initialValue: UserState = { loading: true, data: null }
             const data = { photoURL, uid, displayName, email };
 
             // print data in dev mode
-            /*if (process.env.NODE_ENV === 'development') {
+            if (process.env.NODE_ENV === 'development') {
                 console.log(data);
-            }*/
+            }
 
             // set store
             setUser({ loading: false, data });
@@ -64,7 +69,8 @@ export function _useUser(initialValue: UserState = { loading: true, data: null }
     return _store;
 }
 
-export const useUser = (initialValue?: UserState) => useShared('user', _useUser, initialValue);
+export const useUser = (initialValue?: UserState) =>
+    useShared('user', _useUser, initialValue);
 
 export const loginWithGoogle = (auth: Auth | null) => {
     if (!auth) {
