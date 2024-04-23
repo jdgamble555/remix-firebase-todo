@@ -1,21 +1,19 @@
-import { getApps, initializeApp } from 'firebase/app';
+import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { useShared } from './use-shared';
-import { getFirebaseConfig } from './get-env';
+import { getFirebaseConfig } from './utils';
 
-const _useFirebase = () => {
+const firebase_config = getFirebaseConfig();
 
-    const firebase_config = getFirebaseConfig();
+export const app = getApps().length
+    ? getApp()
+    : initializeApp(firebase_config);
 
-    if (!getApps().length) {
-        initializeApp(firebase_config);
-    }
+const _useFirebase = () => ({
+    auth: getAuth(),
+    db: getFirestore()
+});
 
-    return {
-        auth: getAuth(),
-        db: getFirestore()
-    };
-};
-
-export const useFirebase = (init?: boolean) => useShared('firebase', _useFirebase, init);
+export const useFirebase = (init?: boolean) =>
+    useShared('firebase', _useFirebase, init);
