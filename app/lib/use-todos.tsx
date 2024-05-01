@@ -25,7 +25,7 @@ export type TodoItem = {
     id: string;
     text: string;
     complete: boolean;
-    created: Date;
+    createdAt: Date;
     uid: string;
 };
 
@@ -41,10 +41,10 @@ export const snapToData = (
         const data = doc.data({
             serverTimestamps: 'estimate'
         });
-        const created = data.created as Timestamp;
+        const createdAt = data['createdAt'] as Timestamp;
         return {
             ...data,
-            created: created.toDate(),
+            createdAt: createdAt.toDate(),
             id: doc.id
         }
     }) as TodoItem[];
@@ -88,7 +88,7 @@ export function useTodos(
             query(
                 collection(db, 'todos'),
                 where('uid', '==', user.data.uid),
-                orderBy('created')
+                orderBy('createdAt')
             ), (q) => {
 
                 // get data, map to todo type
@@ -142,7 +142,7 @@ export const addTodo = (
         uid,
         text: task,
         complete: false,
-        created: serverTimestamp()
+        createdAt: serverTimestamp()
     });
 }
 
