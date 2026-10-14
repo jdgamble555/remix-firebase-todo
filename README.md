@@ -5,7 +5,7 @@ Firestore, Tailwind CSS, and Vite.
 
 ## Requirements
 
-Node.js 22.22 or newer and npm.
+Node.js 24.x and npm.
 
 Create a local `.env` file containing `VITE_FIREBASE_CONFIG`, a JSON object with
 your Firebase web app configuration. This value is intentionally exposed to the
@@ -77,3 +77,15 @@ these in your Firebase project before testing; app builds do not deploy Firebase
 To check behavior, sign in with Google, add a task, toggle it, delete it, and verify
 updates in a second signed-in tab. Sign out and switch accounts to verify previous
 account tasks disappear. Check loading and error states and the server-rendered About page.
+
+## Vercel
+
+`vercel.json` overrides the old Remix framework preset and builds with
+`npm run build`. Vercel serves `build/client` as static files and sends remaining
+requests to `api/index.js`, which uses React Router's Node request listener for SSR.
+The server build is included in the function. This supports React Router 8 without
+using the Vercel React Router preset, whose current stable package requires v7.
+
+Set `VITE_FIREBASE_CONFIG` in the Vercel environment before building and set the
+project Node.js version to 24.x. Remove any old Remix build or output-directory
+overrides in Project Settings. Redeploy after committing these changes.
