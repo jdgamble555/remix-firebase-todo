@@ -1,14 +1,7 @@
-declare global {
-    interface Window {
-        ENV: {
-            PUBLIC_FIREBASE_CONFIG: string;
-        }
-    }
-    namespace NodeJS {
-        interface ProcessEnv {
-            PUBLIC_FIREBASE_CONFIG: string;
-        }
-    }
+interface ImportMetaEnv {
+  readonly VITE_FIREBASE_CONFIG: string;
 }
 
-export { }
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

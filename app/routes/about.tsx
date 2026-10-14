@@ -1,17 +1,16 @@
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { Route } from "./+types/about";
 import { getAbout } from "~/lib/about.server";
+
+export const meta: Route.MetaFunction = () => [{ title: "About" }];
 
 export const loader = async () => {
     
     const about = await getAbout();
     
-    return json(about);
+    return about;
 };
 
-export default function AboutPage() {
-
-    const about = useLoaderData<typeof loader>();
+export default function AboutPage({ loaderData: about }: Route.ComponentProps) {
 
     return (
         <div className="flex items-center justify-center my-5">

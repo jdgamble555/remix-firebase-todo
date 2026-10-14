@@ -1,87 +1,63 @@
-import { useEffect, useState } from "react";
-import { useShared } from "./use-shared";
-import {
-    User,
-    onIdTokenChanged,
-    signOut,
-    signInWithPopup,
-    GoogleAuthProvider,
-    Auth
-} from "firebase/auth";
-import { useFirebase } from "./firebase";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { FirebaseError } from "firebase/app";
+import { GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
-export type userData = {
-    photoURL: string | null;
-    uid: string;
-    displayName: string | null;
-    email: string | null;
+export type UserType = {
+  displayName: string | null;
+  photoURL: string | null;
+  uid: string;
+  email: string | null;
 };
 
-type UserState = {
-    loading: boolean;
-    data: userData | null;
+export type UserState = {
+  loading: boolean;
+  data: UserType | null;
 };
 
-export function _useUser(
-    initialValue: UserState = {
-        loading: true,
-        data: null
+const UserContext = createContext<UserState | null>(null);
+
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [getUser, setUser] = useState<UserState>({ loading: true, data: null });
+
+  useEffect(() => onIdTokenChanged(auth, (user) => {
+    if (!user) {
+      setUser({ loading: false, data: null });
+      return;
     }
-) {
+    const { displayName, photoURL, uid, email } = user;
+    setUser({ loading: false, data: { displayName, photoURL, uid, email } });
+  }), []);
 
-    const { auth } = useFirebase();
-
-    const _store = useState<UserState>(initialValue);
-
-    const setUser = _store[1];
-
-    useEffect(() => {
-
-        if (!auth) {
-            return;
-        }
-
-        setUser(v => ({ ...v, loading: true }));
-
-        // subscribe to user changes
-        return onIdTokenChanged(auth, (_user: User | null) => {
-
-            if (!_user) {
-                setUser({ data: null, loading: false });
-                return;
-            }
-
-            // map data to user data type
-            const { photoURL, uid, displayName, email } = _user;
-            const data = { photoURL, uid, displayName, email };
-
-            // print data in dev mode
-            if (process.env.NODE_ENV === 'development') {
-                console.log(data);
-            }
-
-            // set store
-            setUser({ loading: false, data });
-        });
-
-    }, [setUser, auth]);
-
-    return _store;
+  return <UserContext value={getUser}>{children}</UserContext>;
 }
 
-export const useUser = (initialValue?: UserState) =>
-    useShared('user', _useUser, initialValue);
-
-export const loginWithGoogle = (auth: Auth | null) => {
-    if (!auth) {
-        return;
-    }
-    signInWithPopup(auth, new GoogleAuthProvider());
+export function useUser() {
+  const getUser = useContext(UserContext);
+  if (!getUser) throw new Error("useUser requires a UserProvider.");
+  return getUser;
 }
 
-export const logout = (auth: Auth | null) => {
-    if (!auth) {
-        return;
+export const loginWithGoogle = async () => {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+    return { error: null };
+  } catch (error) {
+    if (error instanceof FirebaseError) {
+      return { error: error.message };
     }
-    signOut(auth);
+    throw error;
+  }
+};
+
+export const logout = async () => {
+  try {
+    await signOut(auth);
+    return { error: null };
+  } catch (error) {
+    if (error instanceof FirebaseError) {
+      return { error: error.message };
+    }
+    throw error;
+  }
 };

@@ -1,168 +1,132 @@
+import { useEffect, useState } from "react";
 import {
-    type DocumentData,
-    onSnapshot,
-    type QuerySnapshot,
-    Firestore,
-    Timestamp
-} from 'firebase/firestore';
-import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    orderBy,
-    query,
-    serverTimestamp,
-    updateDoc,
-    where
-} from 'firebase/firestore';
+  collection,
+  deleteDoc,
+  doc,
+  FirestoreError,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  type FirestoreDataConverter,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { auth, db } from "./firebase";
+import { useUser } from "./use-user";
 
-import { useFirebase } from './firebase';
-import { FormEvent, useEffect, useState } from 'react';
-import { useUser } from './use-user';
-
-export type TodoItem = {
-    id: string;
-    text: string;
-    complete: boolean;
-    createdAt: Date;
-    uid: string;
+export type TodoDoc = {
+  id: string;
+  uid: string;
+  text: string;
+  complete: boolean;
+  createdAt: Date;
 };
 
-export const snapToData = (
-    q: QuerySnapshot<DocumentData, DocumentData>
-) => {
+const todoConverter: FirestoreDataConverter<TodoDoc> = {
+  toFirestore(todo) {
+    return todo;
+  },
 
-    // creates todo data from snapshot
-    if (q.empty) {
-        return [];
-    }
-    return q.docs.map((doc) => {
-        const data = doc.data({
-            serverTimestamps: 'estimate'
-        });
-        const createdAt = data['createdAt'] as Timestamp;
-        return {
-            ...data,
-            createdAt: createdAt.toDate(),
-            id: doc.id
-        }
-    }) as TodoItem[];
-}
+  fromFirestore(snapshot) {
+    const data = snapshot.data({ serverTimestamps: "estimate" });
+    const createdAt = data.createdAt as Timestamp;
 
+    return {
+      id: snapshot.id,
+      uid: data.uid,
+      text: data.text,
+      complete: data.complete,
+      createdAt: createdAt.toDate(),
+    };
+  },
+};
 
-export function useTodos(
-    _user: ReturnType<typeof useUser>
-) {
+export const useTodos = () => {
+  const user = useUser();
+  const uid = user.data?.uid;
+  const [todos, setTodos] = useState<{
+    data: TodoDoc[];
+    loading: boolean;
+    error: string | null;
+    uid: string | undefined;
+  }>({ data: [], loading: true, error: null, uid: undefined });
 
-    const { db } = useFirebase();
+  useEffect(() => {
+    if (!uid) return;
 
-    const _store = useState<{
-        todos: TodoItem[],
-        loading: boolean
-    }>({
-        todos: [],
-        loading: true
-    });
-
-    const user = _user[0];
-
-    const setTodos = _store[1];
-
-    useEffect(() => {
-
-        setTodos(v => ({ ...v, loading: true }));
-
-        if (!user.data) {
-            setTodos({ loading: false, todos: [] });
-            return;
-        }
-
-        if (!db) {
-            return;
-        }
-
-        return onSnapshot(
-
-            // query realtime todo list
-            query(
-                collection(db, 'todos'),
-                where('uid', '==', user.data.uid),
-                orderBy('createdAt')
-            ), (q) => {
-
-                // get data, map to todo type
-                const data = snapToData(q);
-
-                /**
-                 * Note: Will get triggered 2x on add 
-                 * 1 - for optimistic update
-                 * 2 - update real date from server date
-                 */
-
-                // print data in dev mode
-                if (process.env.NODE_ENV === 'development') {
-                    console.log(data);
-                }
-
-                // add to store
-                setTodos({ loading: false, todos: data });
-
-            });
-
-    }, [setTodos, user.data, db]);
-
-    return _store[0];
-}
-
-export const addTodo = (
-    e: FormEvent<HTMLFormElement>,
-    uid: string,
-    db: Firestore | null
-) => {
-
-    e.preventDefault();
-
-    if (!db) {
-        return;
-    }
-    // get and reset form
-    const target = e.target as HTMLFormElement;
-    const form = new FormData(target);
-    const { task } = Object.fromEntries(form);
-
-    if (typeof task !== 'string') {
-        return;
-    }
-
-    // reset form
-    target.reset();
-
-    addDoc(collection(db, 'todos'), {
+    return onSnapshot(
+      query(
+        collection(db, "todos"),
+        where("uid", "==", uid),
+        orderBy("createdAt"),
+      ).withConverter(todoConverter),
+      (snapshot) => setTodos({
+        data: snapshot.docs.map((item) => item.data()),
+        loading: false,
+        error: null,
         uid,
-        text: task,
-        complete: false,
-        createdAt: serverTimestamp()
+      }),
+      (error) => setTodos({ data: [], loading: false, error: error.message, uid }),
+    );
+  }, [uid]);
+
+  // Never expose a previous user's data while a new subscription starts.
+  if (!uid) return { data: [], loading: false, error: null };
+  if (todos.uid !== uid) return { data: [], loading: true, error: null };
+  return todos;
+};
+
+export const generateText = () =>
+  doc(collection(db, "todos")).id.substring(0, 10).toLowerCase();
+
+export const addTodo = async (text: string) => {
+  const user = auth.currentUser;
+
+  if (!user) return { error: "No user" };
+  if (!text.trim()) return { error: "Enter a task." };
+
+  try {
+    await setDoc(doc(collection(db, "todos")), {
+      uid: user.uid,
+      text: text.trim(),
+      complete: false,
+      createdAt: serverTimestamp(),
     });
-}
-
-export const updateTodo = (
-    id: string,
-    complete: boolean,
-    db: Firestore | null
-) => {
-    if (!db) {
-        return;
+    return { error: null };
+  } catch (error) {
+    if (error instanceof FirestoreError) {
+      return { error: error.message };
     }
-    updateDoc(doc(db, 'todos', id), { complete });
-}
+    throw error;
+  }
+};
 
-export const deleteTodo = (
-    id: string,
-    db: Firestore | null
-) => {
-    if (!db) {
-        return;
+export const updateTodo = async (id: string, complete: boolean) => {
+  try {
+    await updateDoc(doc(db, "todos", id), {
+      complete,
+      updatedAt: serverTimestamp(),
+    });
+    return { error: null };
+  } catch (error) {
+    if (error instanceof FirestoreError) {
+      return { error: error.message };
     }
-    deleteDoc(doc(db, 'todos', id));
-}
+    throw error;
+  }
+};
+
+export const deleteTodo = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "todos", id));
+    return { error: null };
+  } catch (error) {
+    if (error instanceof FirestoreError) {
+      return { error: error.message };
+    }
+    throw error;
+  }
+};

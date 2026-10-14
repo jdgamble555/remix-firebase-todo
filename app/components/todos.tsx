@@ -1,42 +1,60 @@
-import { addTodo, useTodos } from "~/lib/use-todos";
-import { useUser, userData } from "~/lib/use-user";
+import { useState, type SubmitEvent } from "react";
+
+import { addTodo, generateText, useTodos } from "~/lib/use-todos";
 import { Todo } from "./todo-item";
-import { useFirebase } from "~/lib/firebase";
 
 export default function Todos() {
+  const todos = useTodos();
 
-    const _user = useUser();
-
-    const { todos } = useTodos(_user);
-
-    const user = _user[0];
-
-    if (!user.data) {
-        return;
-    }
-
-    return (
-        <div>
-            <div className="grid grid-cols-[auto,auto,auto,auto] gap-3 justify-items-start">
-                {todos.length
-                    ? todos.map((todo) => <Todo key={todo.id} {...{ todo }} />)
-                    : <p><b>Add your first todo item!</b></p>
-                }
-            </div>
-            <TodoForm {...user.data} />
-        </div>
-    );
-
+  return (
+    <div>
+      <div className="flex flex-col gap-3">
+        {todos.loading ? (
+          <p>Loading todos...</p>
+        ) : todos.error ? (
+          <p role="alert" className="text-red-600">{todos.error}</p>
+        ) : (
+          todos.data.length ? todos.data.map((todo) => (
+            <Todo key={todo.id} todo={todo} />
+          )) : <p><b>Add your first todo item!</b></p>
+        )}
+      </div>
+      <TodoForm />
+    </div>
+  );
 }
 
-export const TodoForm = (user: userData) => {
-    const { db } = useFirebase();
-    return (
-        <form className="flex gap-3 items-center justify-center mt-5" onSubmit={(e) => addTodo(e, user.uid, db)}>
-            <input className="border p-2" name="task" />
-            <button className="border p-2 rounded-md text-white bg-sky-700" type="submit">
-                Add Task
-            </button>
-        </form>
-    );
-};
+export function TodoForm() {
+  const [text, setText] = useState(generateText);
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+
+    const result = await addTodo(text);
+    setError(result.error);
+
+    if (!result.error) setText(generateText());
+  };
+
+  return (
+    <div className="mt-5">
+      <form className="flex items-center justify-center gap-3" onSubmit={onSubmit}>
+        <input
+          className="p-2 border rounded-lg"
+          aria-label="New task"
+          value={text}
+          onChange={(event) => setText(event.currentTarget.value)}
+          required
+        />
+        <button className="p-2 font-semibold text-white bg-purple-600 border rounded-lg" type="submit">
+          Add Task
+        </button>
+      </form>
+      {error && (
+        <p role="alert" className="mt-2 text-center text-red-600">{error}</p>
+      )}
+    </div>
+  );
+}
