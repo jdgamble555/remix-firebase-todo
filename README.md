@@ -80,12 +80,6 @@ account tasks disappear. Check loading and error states and the server-rendered 
 
 ## Vercel
 
-`vercel.json` overrides the old Remix framework preset and builds with
-`npm run build`. Vercel serves `build/client` as static files and sends remaining
-requests to `api/index.js`, which uses React Router's Node request listener for SSR.
-The server build is included in the function. This supports React Router 8 without
-using the Vercel React Router preset, whose current stable package requires v7.
-
-Set `VITE_FIREBASE_CONFIG` in the Vercel environment before building and set the
-project Node.js version to 24.x. Remove any old Remix build or output-directory
-overrides in Project Settings. Redeploy after committing these changes.
+Select the React Router framework preset in Vercel Project Settings.
+Set VITE_FIREBASE_CONFIG before building and use Node.js 24.x.
+Remove old Remix build and output-directory overrides, then redeploy.
